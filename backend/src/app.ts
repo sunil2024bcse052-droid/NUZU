@@ -4,6 +4,8 @@ import helmet from "helmet";
 import { env } from "./config/env";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/users/user.routes";
+import circleRoutes from "./modules/circles/circle.routes";
+import activityRoutes from "./modules/activities/activity.routes";
 import { notFoundHandler, errorHandler } from "./middleware/error.middleware";
 
 export const app = express();
@@ -18,6 +20,8 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/circles", circleRoutes);
+app.use("/api/activities", activityRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
