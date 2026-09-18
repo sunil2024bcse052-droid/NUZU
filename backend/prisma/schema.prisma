@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VerifiedStatus {
+  UNVERIFIED
+  PHONE_VERIFIED
+  ID_VERIFIED
+}
+
+enum VisibilityPreference {
+  PUBLIC
+  CONNECTIONS_ONLY
+}
+
+enum ActivityVisibility {
+  OPEN_NEARBY
+  CIRCLE_ONLY
+}
+
+enum GenderRestriction {
+  NONE
+  WOMEN_ONLY
+  VERIFIED_ONLY
+}
+
+enum JoinMode {
+  INSTANT
+  SILENT_INTEREST
+  REQUEST_APPROVAL
+}
+
+enum CircleType {
+  SOCIETY
+  COLLEGE
+  UNIVERSITY
+  WORKPLACE
+}
+
+enum MembershipStatus {
+  PENDING
+  VERIFIED
+}
+
+enum ReportCategory {
+  HARASSMENT
+  UNSAFE_BEHAVIOR
+  FAKE_PROFILE
+  INAPPROPRIATE_CONTENT
+  NO_SHOW
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum RestrictionType {
+  ACTIVITY_CREATION_BLOCKED
+  TEMPORARY_SUSPENSION
+  PERMANENT_BAN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  interests    String[] @default([])
+
+  latitude  Float?
+  longitude Float?
+
+  birthDate            DateTime?
+  verifiedStatus       VerifiedStatus       @default(UNVERIFIED)
+  visibilityPreference VisibilityPreference @default(PUBLIC)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activitiesCreated  Activity[]         @relation("ActivityCreator")
+  participations     Participant[]
+  attendances        Attendance[]
+  points             Points[]
+  circleMemberships  CircleMembership[]
+  reportsFiled       Report[]           @relation("ReportsFiled")
+  reportsReceived    Report[]           @relation("ReportsReceived")
+  restrictions       Restriction[]      @relation("UserRestrictions")
+  restrictionsIssued Restriction[]      @relation("AdminIssuedRestrictions")
+  safetyCheckIns     SafetyCheckIn[]
+
+  @@index([email])
+}
+
+model Circle {
+  id        String     @id @default(uuid())
+  name      String
+  type      CircleType
+  address   String?
+  pincode   String?
+  createdAt DateTime   @default(now())
+
+  memberships CircleMembership[]
+  activities  Activity[]
+
+  @@index([type])
+}
+
+model CircleMembership {
+  id          String           @id @default(uuid())
+  userId      String
+  circleId    String
+  status      MembershipStatus @default(PENDING)
+  isModerator Boolean          @default(false)
+  joinedAt    DateTime         @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  circle Circle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, circleId])
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  latitude    Float
+  longitude   Float
+  date        DateTime
+  capacity    Int
+
+  visibility        ActivityVisibility @default(OPEN_NEARBY)
+  genderRestriction GenderRestriction  @default(NONE)
+  joinMode          JoinMode           @default(INSTANT)
+  isSmallGroup      Boolean            @default(false)
+
+  creatorId String
+  circleId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator      User          @relation("ActivityCreator", fields: [creatorId], references: [id])
+  circle       Circle?       @relation(fields: [circleId], references: [id])
+  participants Participant[]
+  attendances  Attendance[]
+  points       Points[]
+  reports      Report[]
+
+  @@index([creatorId])
+  @@index([circleId])
+  @@index([date])
+}
+
+model Participant {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String
+  joinedAt   DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId])
+}
+
+model Attendance {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String
+  attendedAt DateTime @default(now())
+  verified   Boolean  @default(false)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId])
+}
+
+model Points {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String?
+  points     Int
+  reason     String
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity? @relation(fields: [activityId], references: [id])
+}
+
+model Report {
+  id             String         @id @default(uuid())
+  reporterId     String
+  reportedUserId String?
+  activityId     String?
+  category       ReportCategory
+  reason         String
+  status         ReportStatus   @default(OPEN)
+  createdAt      DateTime       @default(now())
+
+  reporter     User      @relation("ReportsFiled", fields: [reporterId], references: [id])
+  reportedUser User?     @relation("ReportsReceived", fields: [reportedUserId], references: [id])
+  activity     Activity? @relation(fields: [activityId], references: [id])
+}
+
+model Restriction {
+  id              String          @id @default(uuid())
+  userId          String
+  restrictionType RestrictionType
+  reason          String
+  appliedAt       DateTime        @default(now())
+  reviewedAt      DateTime?
+  reviewerAdminId String?
+
+  user          User  @relation("UserRestrictions", fields: [userId], references: [id], onDelete: Cascade)
+  reviewerAdmin User? @relation("AdminIssuedRestrictions", fields: [reviewerAdminId], references: [id])
+}
+
+model SafetyCheckIn {
+  id                String   @id @default(uuid())
+  userId            String
+  activityId        String
+  sharedWithContact String?
+  checkedInAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
