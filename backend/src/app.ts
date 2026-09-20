@@ -6,6 +6,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/users/user.routes";
 import circleRoutes from "./modules/circles/circle.routes";
 import activityRoutes from "./modules/activities/activity.routes";
+import participantRoutes from "./modules/participants/participant.routes";
 import { notFoundHandler, errorHandler } from "./middleware/error.middleware";
 
 export const app = express();
@@ -22,6 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/circles", circleRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/activities/:id", participantRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
