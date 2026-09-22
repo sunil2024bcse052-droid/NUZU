@@ -7,6 +7,9 @@ import userRoutes from "./modules/users/user.routes";
 import circleRoutes from "./modules/circles/circle.routes";
 import activityRoutes from "./modules/activities/activity.routes";
 import participantRoutes from "./modules/participants/participant.routes";
+import attendanceRoutes from "./modules/attendance/attendance.routes";
+import reportRoutes from "./modules/reports/report.routes";
+import adminRoutes from "./modules/admin/admin.routes";
 import { notFoundHandler, errorHandler } from "./middleware/error.middleware";
 
 export const app = express();
@@ -24,6 +27,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/circles", circleRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/activities/:id", participantRoutes);
+app.use("/api/activities/:id", attendanceRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
