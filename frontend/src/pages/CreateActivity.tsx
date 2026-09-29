@@ -4,6 +4,14 @@ import { createActivity } from "../lib/activities";
 import Field from "../components/Field";
 
 const CATEGORIES = ["Sports", "Study", "Volunteering", "Trip", "Discussion", "Other"];
+const DURATIONS = [
+  { label: "30 min", value: 30 },
+  { label: "1 hour", value: 60 },
+  { label: "1.5 hours", value: 90 },
+  { label: "2 hours", value: 120 },
+  { label: "3 hours", value: 180 },
+  { label: "Half day", value: 240 },
+];
 
 export default function CreateActivity() {
   const navigate = useNavigate();
@@ -12,6 +20,7 @@ export default function CreateActivity() {
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState(60);
   const [capacity, setCapacity] = useState("8");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +49,7 @@ export default function CreateActivity() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             date: isoDate,
+            durationMinutes,
             capacity: Number(capacity),
           });
           navigate("/");
@@ -90,8 +100,21 @@ export default function CreateActivity() {
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Date" type="date" value={date} onChange={setDate} />
-          <Field label="Time" type="time" value={time} onChange={setTime} />
+          <Field label="Start time" type="time" value={time} onChange={setTime} />
         </div>
+
+        <label className="block mb-4">
+          <span className="block text-sm font-medium text-ink/80 mb-1.5">Duration</span>
+          <select
+            value={durationMinutes}
+            onChange={(e) => setDurationMinutes(Number(e.target.value))}
+            className="w-full rounded-xl border border-black/10 px-4 py-3 text-base outline-none focus:border-primary bg-surface"
+          >
+            {DURATIONS.map((d) => (
+              <option key={d.value} value={d.value}>{d.label}</option>
+            ))}
+          </select>
+        </label>
 
         <Field label="Capacity" type="number" value={capacity} onChange={setCapacity} />
 

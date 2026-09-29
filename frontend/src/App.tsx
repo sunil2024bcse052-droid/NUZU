@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Discover from "./pages/Discover";
 import CreateActivity from "./pages/CreateActivity";
+import ActivityDetail from "./pages/ActivityDetail";
+import ProfilePage from "./pages/ProfilePage";
 
 function Placeholder({ title }: { title: string }) {
   return <h1 className="font-display text-3xl">{title}</h1>;
@@ -27,7 +29,6 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
         <Route
           element={
             <RequireAuth>
@@ -35,10 +36,11 @@ export default function App() {
             </RequireAuth>
           }
         >
-          <Route path="/" element={<Discover />} />
-          <Route path="/circles" element={<Placeholder title="Your circles" />} />
-          <Route path="/create" element={<CreateActivity />} />
-          <Route path="/profile" element={<Placeholder title="Your profile" />} />
+          <Route index element={<Discover />} />
+          <Route path="activities/:id" element={<ActivityDetail />} />
+          <Route path="circles" element={<Placeholder title="Your circles" />} />
+          <Route path="create" element={<CreateActivity />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

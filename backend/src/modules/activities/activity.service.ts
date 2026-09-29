@@ -36,6 +36,7 @@ export async function createActivity(userId: string, input: CreateActivityInput)
       latitude: input.latitude,
       longitude: input.longitude,
       date: new Date(input.date),
+      durationMinutes: input.durationMinutes,
       capacity: input.capacity,
       visibility: input.visibility,
       genderRestriction: input.genderRestriction,

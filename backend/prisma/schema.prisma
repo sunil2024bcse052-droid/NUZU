@@ -142,6 +142,7 @@ model Activity {
   latitude    Float
   longitude   Float
   date        DateTime
+  durationMinutes   Int                @default(60)
   capacity    Int
 
   visibility        ActivityVisibility @default(OPEN_NEARBY)
