@@ -7,6 +7,7 @@ import {
   joinCircle,
   listMembers,
   approveMembership,
+  listMyMemberships,
 } from "./circle.service";
 
 export async function create(req: Request, res: Response, next: NextFunction) {
@@ -64,6 +65,16 @@ export async function approve(req: Request, res: Response, next: NextFunction) {
     if (!req.auth) return res.status(401).json({ error: "Not authenticated" });
     const membership = await approveMembership(req.auth.userId, req.params.id, req.params.userId);
     return res.status(200).json({ membership });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export async function myMemberships(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.auth) return res.status(401).json({ error: "Not authenticated" });
+    const memberships = await listMyMemberships(req.auth.userId);
+    return res.status(200).json({ memberships });
   } catch (err) {
     return next(err);
   }

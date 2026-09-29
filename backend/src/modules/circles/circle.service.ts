@@ -91,3 +91,10 @@ export async function approveMembership(moderatorId: string, circleId: string, t
     data: { status: "VERIFIED" },
   });
 }
+export async function listMyMemberships(userId: string) {
+  return prisma.circleMembership.findMany({
+    where: { userId },
+    include: { circle: true },
+    orderBy: { joinedAt: "desc" },
+  });
+}
