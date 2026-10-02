@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogOut, Award } from "lucide-react";
 import { getMyProfile, type Profile } from "../lib/user";
 import { getMyPointsHistory, type PointsEntry } from "../lib/points";
@@ -35,12 +35,19 @@ export default function ProfilePage() {
           <h1 className="font-display text-3xl">{profile.name}</h1>
           <p className="text-ink/60 text-sm">{profile.email}</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 text-sm text-ink/50 hover:text-alert transition-colors"
-        >
-          <LogOut size={16} /> Log out
-        </button>
+        <div className="flex items-center gap-4">
+          {profile.role === "ADMIN" && (
+            <Link to="/admin" className="text-sm font-medium" style={{ color: "#C1502E" }}>
+              Admin dashboard
+            </Link>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-sm text-ink/50 hover:text-alert transition-colors"
+          >
+            <LogOut size={16} /> Log out
+          </button>
+        </div>
       </div>
 
       <div
